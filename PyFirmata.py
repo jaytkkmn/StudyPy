@@ -45,7 +45,12 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     msg.payload = msg.payload.decode("utf-8")  # If msg.payload doesn't decode to "utf-8". The result will become b' msg.payload.
     print(msg.topic + " " + msg.payload)
-    return msg.payload
+    board = Arduino('/dev/ttyACM0')
+    if msg.payload == 'true':
+        board.digital[13].write(1)
+    else:
+        board.digital[13].write(0)
+
 
 # sensor_led(board_name, pin)
 # led_blink(board_name, pin)
@@ -57,3 +62,4 @@ client.on_message = on_message
 client.connect(broker_host, 1883, 60)
 
 client.loop_forever()
+
