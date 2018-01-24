@@ -3,8 +3,11 @@ from time import sleep
 import paho.mqtt.client as mqtt
 import time
 
+global board_name
+
 board_name = Arduino('/dev/ttyACM0')
-# pin = 3
+
+pin = 3
 broker_host = "localhost"
 subscribe_topic = "Jack/switch"
 
@@ -45,21 +48,22 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     msg.payload = msg.payload.decode("utf-8")  # If msg.payload doesn't decode to "utf-8". The result will become b' msg.payload.
     print(msg.topic + " " + msg.payload)
-    board = Arduino('/dev/ttyACM0')
+
     if msg.payload == 'true':
-        board.digital[13].write(1)
+        board_name.digital[13].write(1)
     else:
-        board.digital[13].write(0)
+        board_name.digital[13].write(0)
 
 
-# sensor_led(board_name, pin)
+def node_red_switch():  # Click Node_red switch button to switch the LED ON/OFF
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(broker_host, 1883, 60)
+
+    client.loop_forever()
+
+
+sensor_led(board_name, pin)
 # led_blink(board_name, pin)
-
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect(broker_host, 1883, 60)
-
-client.loop_forever()
-
+# node_red_switch()
